@@ -1,35 +1,35 @@
-using InstantGamesBridge;
-using System;
 using UnityEngine;
 
-public class SaveLogic : MonoBehaviour
+namespace CGL
 {
-    [Header("Settings")]
-    public SavaData SaveData = new SavaData();
-
-    public delegate void onLoad(SavaData savaData);
-    public event onLoad OnLoad;
-
-
-    #region Load
-    public void Load()
+    public static class SaveLogic
     {
+        [Header("Settings")]
+        public static SavaData SaveData = new SavaData();
+
+        public delegate void onLoad(SavaData savaData);
+        public static event onLoad OnLoad;
+
+
+        #region Load
+        public static void Load()
+        {
 #if PLATFORM_WEBGL
         Load_WebGL();
 #endif
 #if PLATFORM_ANDROID
-        Load_Android();
+            Load_Android();
 #endif
-    }
+        }
 
-    #region Load WebGL
+        #region Load WebGL
 #if PLATFORM_WEBGL
-    public void Load_WebGL()
+    public static void Load_WebGL()
     {
-        Bridge.storage.Get("data", OnStorageGetCompleted);
+        InstantGamesBridge.Bridge.storage.Get("data", OnStorageGetCompleted);
     }
 
-    private void OnStorageGetCompleted(bool success, string data)
+    private static void OnStorageGetCompleted(bool success, string data)
     {
         SaveData = new SavaData();
 
@@ -45,94 +45,95 @@ public class SaveLogic : MonoBehaviour
 
     }
 #endif
-    #endregion
+        #endregion
 
-    #region Load Android
+        #region Load Android
 #if PLATFORM_ANDROID
-    public void Load_Android()
-    {
-        SavaData savaData = new SavaData();
-        string json = PlayerPrefs.GetString("data", "none");
-        if (json == "none") OnLoad?.Invoke(savaData);
-        else
+        public static void Load_Android()
         {
-            savaData = JsonUtility.FromJson<SavaData>(json);
-            OnLoad?.Invoke(savaData);
+            SavaData savaData = new SavaData();
+            string json = PlayerPrefs.GetString("data", "none");
+            if (json == "none") OnLoad?.Invoke(savaData);
+            else
+            {
+                savaData = JsonUtility.FromJson<SavaData>(json);
+                OnLoad?.Invoke(savaData);
+            }
         }
-    }
 #endif
-    #endregion
-    #endregion
+        #endregion
+        #endregion
 
-    #region Save
-    public void Save(SavaData _saveData)
-    {
-        #if PLATFORM_WEBGL
-        Save_WebGL(_saveData);
-        #endif
-        #if PLATFORM_ANDROID
-        Save_Android(_saveData);
-        #endif
-    }
-
-    #region Save WebGL
+        #region Save
+        public static void Save(SavaData _saveData)
+        {
 #if PLATFORM_WEBGL
-    public void Save_WebGL(SavaData _saveData)
+        Save_WebGL(_saveData);
+#endif
+#if PLATFORM_ANDROID
+            Save_Android(_saveData);
+#endif
+        }
+
+        #region Save WebGL
+#if PLATFORM_WEBGL
+    public static void Save_WebGL(SavaData _saveData)
     {
-        Bridge.storage.Set("data", JsonUtility.ToJson(_saveData), OnStorageSetCompleted);
+        InstantGamesBridge.Bridge.storage.Set("data", JsonUtility.ToJson(_saveData), OnStorageSetCompleted);
     }
 
-    private void OnStorageSetCompleted(bool success)
+    private static void OnStorageSetCompleted(bool success)
     {
         Debug.Log($"OnStorageSetCompleted, success: {success}");
     }
 #endif
-    #endregion
+        #endregion
 
-    #region Save Android
+        #region Save Android
 #if PLATFORM_ANDROID
-    public void Save_Android(SavaData _saveData)
-    {
-        PlayerPrefs.SetString("data", JsonUtility.ToJson(_saveData));
-        PlayerPrefs.Save();
-    }
+        public static void Save_Android(SavaData _saveData)
+        {
+            PlayerPrefs.SetString("data", JsonUtility.ToJson(_saveData));
+            PlayerPrefs.Save();
+        }
 #endif
-    #endregion
-    #endregion
+        #endregion
+        #endregion
 
-    #region Reset
-    public void Reset()
-    {
+        #region Reset
+        public static void Reset()
+        {
 #if PLATFORM_WEBGL
         Reset_WebGL();
 #endif
 #if PLATFORM_ANDROID
-        Reset_Android();
+            Reset_Android();
 #endif
-    }
+        }
 
-    #region Reset WebGL
+        #region Reset WebGL
 #if PLATFORM_WEBGL
-    public void Reset_WebGL()
+    public static void Reset_WebGL()
     {
-        Bridge.storage.Delete("data", OnStorageDeleteCompleted);
+        InstantGamesBridge.Bridge.storage.Delete("data", OnStorageDeleteCompleted);
     }
 
-    private void OnStorageDeleteCompleted(bool obj)
+    private static void OnStorageDeleteCompleted(bool obj)
     {
         Save(new SavaData());
     }
 #endif
-    #endregion
+        #endregion
 
-    #region Reset Android
+        #region Reset Android
 #if PLATFORM_ANDROID
-    public void Reset_Android()
-    {
-        PlayerPrefs.SetString("data", JsonUtility.ToJson(new SavaData()));
-        PlayerPrefs.Save();
-    }
+        public static void Reset_Android()
+        {
+            PlayerPrefs.SetString("data", JsonUtility.ToJson(new SavaData()));
+            PlayerPrefs.Save();
+        }
 #endif
-    #endregion
-    #endregion
+        #endregion
+        #endregion
+    }
 }

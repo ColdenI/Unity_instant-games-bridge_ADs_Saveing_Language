@@ -1,98 +1,136 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-public static class TranslationData
+namespace CGL
 {
-    /// <summary>
-    /// Init function, to call in Start or in Awake
-    /// </summary>
-    public static void Init()
-    { 
-        new TranslationData_("t_pause", "Ïàóçà", "Pause");
-        new TranslationData_("t_shop", "Ìàãàçèí", "Shop");
-        new TranslationData_("t_close", "Çàêðûòü", "Close");
-        new TranslationData_("t_pay", "Îïëàòèòü", "Pay");
-        new TranslationData_("t_price", "Öåíà", "Price");
-        new TranslationData_("t_price_total", "Èòîãî", "Total");
-        new TranslationData_("buton_ok", "Îê", "Ok");
-        new TranslationData_("buton_collect_x2", "Ïîëó÷èòü 2X", "Collect 2X");
-        new TranslationData_("buton_collect", "Ïîëó÷èòü", "Collect");
-        new TranslationData_("buton_apply", "Ïðèíÿòü", "Apply");
-        new TranslationData_("buton_cancel", "Îòìåíèòü", "Cancel");
-        new TranslationData_("buton_inMenu", "Â ìåíþ", "In the menu");
-        new TranslationData_("buton_continue", "Ïðîäîëæèòü èãðó", "Continue the game");
-
-       
-    }
-    
-    #region Logic
-    public static void Init(TranslationData_.Language _language)
+    [Serializable]
+    public static class TranslationData
     {
-        language = _language;
-        Init();
-    }
-   
-    public static List<TranslationData_> data = new List<TranslationData_>();
-    public static int counter = -1;
-    public static TranslationData_.Language language = TranslationData_.Language.Ru;
-
-    private static string CheckData(string str, string key) => string.IsNullOrWhiteSpace(str) ? $"[no data - '{key}']" : str;
-
-    public static string Get(int _index, TranslationData_.Language _l)
-    {
-        switch (_l)
+        /// <summary>
+        /// Init function, to call in Start or in Awake
+        /// </summary>
+        public static void Init()
         {
-            case TranslationData_.Language.Ru: return CheckData(data[_index].Ru, data[_index].Key);
-            case TranslationData_.Language.En: return CheckData(data[_index].En, data[_index].Key);
-            default: return "{no language}";
+            new TranslationData_("t_record", "Рекорд", "High Score");
+            new TranslationData_("t_score", "Счет", "Score");
+            new TranslationData_("t_buy", "Купить", "Buy");
+            new TranslationData_("t_apply", "Применить", "Apply");
+            new TranslationData_("t_gameOver", "Поражение", "Game Over");
+            new TranslationData_("t_start", "Нажмите Чтобы Начать", "Tap To Start");
+
+            IsInit = true;
         }
-    }
-    public static string Get(string _key, TranslationData_.Language _l)
-    {
-        foreach(TranslationData_ i in data) if(i.Key == _key) return Get(i.Index, _l);
-        return $"[no key - '{_key}']";
-    }
-    public static string Get(string _key)
-    {
-        return Get(_key, language);
-    }
-    public static string Get(int _index)
-    {
-        return Get(_index, language);
-    }
 
-    #endregion
-}
-
-[Serializable]
-public class TranslationData_
-{
-    public TranslationData_(out int _index, string _key, string ru, string en)
-    {
-        TranslationData.counter++;
-        _index = TranslationData.counter;
-        TranslationData.data.Add(new TranslationData_(_index, _key)
+        #region Logic
+        public static void Init(Language _language)
         {
-            Ru = ru,
-            En = en
-        });
+            TranslationData._language = _language;
+            Init();
+        }
+
+        private static bool isInit = false;
+        public static bool IsInit
+        {
+            get => isInit; private set
+            {
+                isInit = value;
+                OnInitialized?.Invoke(language: _language);
+            }
+        }
+
+        public delegate void onChangeLanguage(Language language);
+        public static event onChangeLanguage OnChangeLanguage;
+        public static event onChangeLanguage OnInitialized;
+
+        internal static List<TranslationData_> data = new List<TranslationData_>();
+        public static int counter = -1;
+        private static Language _language = Language.Ru;
+        public static Language language
+        {
+            get => _language; set
+            {
+                _language = value;
+                OnChangeLanguage?.Invoke(value);
+            }
+        }
+
+        private static string CheckData(string str, string key) => string.IsNullOrWhiteSpace(str) ? $"[no data - '{key}']" : str;
+
+        public static string Get(int _index, Language _l)
+        {
+            if (!isInit) return "{TranslationData not initialized!}";
+            switch (_l)
+            {
+                case Language.Ru: return CheckData(data[_index].Ru, data[_index].Key);
+                case Language.En: return CheckData(data[_index].En, data[_index].Key);
+                case Language.Es: return CheckData(data[_index].Es, data[_index].Key);
+                case Language.Fr: return CheckData(data[_index].Fr, data[_index].Key);
+                case Language.Tr: return CheckData(data[_index].Tr, data[_index].Key);
+                default: return "{no language}";
+            }
+        }
+        public static string Get(string _key, Language _l)
+        {
+            if (!isInit) return "{TranslationData not initialized!}";
+            foreach (TranslationData_ i in data) if (i.Key == _key) return Get(i.Index, _l);
+            return $"[no key - '{_key}']";
+        }
+        public static string Get(string _key)
+        {
+            return Get(_key, _language);
+        }
+        public static string Get(int _index)
+        {
+            return Get(_index, _language);
+        }
+
+        [Serializable]
+        public enum Language
+        {
+            Ru,
+            En,
+            Es,
+            Fr,
+            Tr
+        }
+        #endregion
     }
-    public TranslationData_(string _key, string ru, string en) : this(out int a, _key, ru, en) { }
-
-    private TranslationData_(int _index, string _key) { index = _index; key = _key; }
-
-    private int index;
-    private string key;
-    public int Index { get { return index; } }
-    public string Key { get { return key; } }
-    public string Ru;
-    public string En;
 
     [Serializable]
-    public enum Language
+    class TranslationData_
     {
-        Ru,
-        En
+        private TranslationData_(out int _index, string _key,
+            string ru,
+            string en,
+            string es = null,
+            string fr = null,
+            string tr = null)
+        {
+            TranslationData.counter++;
+            _index = TranslationData.counter;
+            TranslationData.data.Add(new TranslationData_(_index, _key)
+            {
+                Ru = ru,
+                En = en,
+                Es = es,
+                Fr = fr,
+                Tr = tr
+            });
+        }
+        internal TranslationData_(string _key, string ru, string en) : this(out int a, _key, ru, en) { }
+        internal TranslationData_(string _key, string ru, string en, string es, string fr, string tr) : this(out int a, _key, ru, en, es, fr, tr) { }
+
+        private TranslationData_(int _index, string _key) { index = _index; key = _key; }
+
+        private int index;
+        private string key;
+        public int Index { get { return index; } }
+        public string Key { get { return key; } }
+
+        public string Ru;
+        public string En;
+        public string Es;
+        public string Fr;
+        public string Tr;
     }
 }

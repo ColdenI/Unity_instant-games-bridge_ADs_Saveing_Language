@@ -1,11 +1,16 @@
 using System;
 
-[Serializable]
-public class SavaData
+namespace CGL
 {
-    // general
-    public int Money = 0;
+    [Serializable]
+    public class SavaData
+    {
+        // general
+        public int Money = 0;
+        public int ScoreRecord = 0;
+        public int ColorSet = 0;
 
-    // settings
-    public TranslationData_.Language language = TranslationData_.Language.Ru;
+        // settings
+        public TranslationData.Language language = TranslationData.Language.Ru;
+    }
 }
