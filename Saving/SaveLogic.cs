@@ -57,6 +57,7 @@ namespace CGL
             else
             {
                 savaData = JsonUtility.FromJson<SavaData>(json);
+                SaveData = savaData;
                 OnLoad?.Invoke(savaData);
             }
         }
@@ -65,6 +66,8 @@ namespace CGL
         #endregion
 
         #region Save
+        public static void Save() => Save(SaveData);
+
         public static void Save(SavaData _saveData)
         {
 #if PLATFORM_WEBGL

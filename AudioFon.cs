@@ -4,8 +4,8 @@ namespace CGL
 {
     public class AudioFon : MonoBehaviour
     {
-        private AudioSource m_Source;
-        private static AudioFon af = null;
+        [HideInInspector] public AudioSource m_Source;
+        public static AudioFon af = null;
 
         private void Awake()
         {

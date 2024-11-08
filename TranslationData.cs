@@ -17,6 +17,7 @@ namespace CGL
             new TranslationData_("t_apply", "Применить", "Apply");
             new TranslationData_("t_gameOver", "Поражение", "Game Over");
             new TranslationData_("t_start", "Нажмите Чтобы Начать", "Tap To Start");
+            new TranslationData_("t_reset", "Вы уверены что хотите сбросить все данные игры?", "Are you sure you want to reset all game data?");
 
             IsInit = true;
         }
