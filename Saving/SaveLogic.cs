@@ -5,11 +5,21 @@ namespace CGL
     public static class SaveLogic
     {
         [Header("Settings")]
-        public static SavaData SaveData = new SavaData();
+        private static SaveData _saveData = new SaveData();
+        public static SaveData SaveData { 
+            get
+            {
+                if (!_isLoadData) Debug.LogWarning("The data has not been uploaded. The default object was passed.");
+                return _saveData;
+            }
+            set => _saveData = value;
+        }
 
-        public delegate void onLoad(SavaData savaData);
+        public delegate void onLoad(SaveData saveData);
         public static event onLoad OnLoad;
 
+        private static bool _isLoadData = false;
+        public static bool IsLoadData { get => _isLoadData; }
 
         #region Load
         public static void Load()
@@ -17,9 +27,11 @@ namespace CGL
 #if PLATFORM_WEBGL
         Load_WebGL();
 #endif
-#if PLATFORM_ANDROID
-            Load_Android();
+#if PLATFORM_ANDROID || PLATFORM_ARCH_64 || PLATFORM_STANDALONE_WIN
+            Load_PlayerPrefs();
 #endif
+
+            if(!_isLoadData && _saveData != null) _isLoadData = true;
         }
 
         #region Load WebGL
@@ -31,14 +43,14 @@ namespace CGL
 
     private static void OnStorageGetCompleted(bool success, string data)
     {
-        SaveData = new SavaData();
+        SaveData = new SaveData();
 
         // Загрузка произошла успешно
         if (success)
         {
             if (data != null)
             {
-                SaveData = JsonUtility.FromJson<SavaData>(data);
+                SaveData = JsonUtility.FromJson<SaveData>(data);
             }
         }
         OnLoad?.Invoke(SaveData);
@@ -47,16 +59,16 @@ namespace CGL
 #endif
         #endregion
 
-        #region Load Android
-#if PLATFORM_ANDROID
-        public static void Load_Android()
+        #region Load PlayerPrefs
+#if PLATFORM_ANDROID || PLATFORM_ARCH_64 || PLATFORM_STANDALONE_WIN
+        public static void Load_PlayerPrefs()
         {
-            SavaData savaData = new SavaData();
+            SaveData savaData = new SaveData();
             string json = PlayerPrefs.GetString("data", "none");
             if (json == "none") OnLoad?.Invoke(savaData);
             else
             {
-                savaData = JsonUtility.FromJson<SavaData>(json);
+                savaData = JsonUtility.FromJson<SaveData>(json);
                 SaveData = savaData;
                 OnLoad?.Invoke(savaData);
             }
@@ -66,21 +78,21 @@ namespace CGL
         #endregion
 
         #region Save
-        public static void Save() => Save(SaveData);
+        public static void Save() => Save(_saveData);
 
-        public static void Save(SavaData _saveData)
+        public static void Save(SaveData _saveData)
         {
 #if PLATFORM_WEBGL
         Save_WebGL(_saveData);
 #endif
-#if PLATFORM_ANDROID
-            Save_Android(_saveData);
+#if PLATFORM_ANDROID || PLATFORM_ARCH_64 || PLATFORM_STANDALONE_WIN
+            Save_PlayerPrefs(_saveData);
 #endif
         }
 
         #region Save WebGL
 #if PLATFORM_WEBGL
-    public static void Save_WebGL(SavaData _saveData)
+    public static void Save_WebGL(SaveData _saveData)
     {
         InstantGamesBridge.Bridge.storage.Set("data", JsonUtility.ToJson(_saveData), OnStorageSetCompleted);
     }
@@ -92,9 +104,9 @@ namespace CGL
 #endif
         #endregion
 
-        #region Save Android
-#if PLATFORM_ANDROID
-        public static void Save_Android(SavaData _saveData)
+        #region Save PlayerPrefs
+#if PLATFORM_ANDROID || PLATFORM_ARCH_64 || PLATFORM_STANDALONE_WIN
+        public static void Save_PlayerPrefs(SaveData _saveData)
         {
             PlayerPrefs.SetString("data", JsonUtility.ToJson(_saveData));
             PlayerPrefs.Save();
@@ -109,8 +121,8 @@ namespace CGL
 #if PLATFORM_WEBGL
         Reset_WebGL();
 #endif
-#if PLATFORM_ANDROID
-            Reset_Android();
+#if PLATFORM_ANDROID || PLATFORM_ARCH_64 || PLATFORM_STANDALONE_WIN
+            Reset_PlayerPrefs();
 #endif
         }
 
@@ -123,16 +135,16 @@ namespace CGL
 
     private static void OnStorageDeleteCompleted(bool obj)
     {
-        Save(new SavaData());
+        Save(new SaveData());
     }
 #endif
         #endregion
 
-        #region Reset Android
-#if PLATFORM_ANDROID
-        public static void Reset_Android()
+        #region Reset PlayerPrefs
+#if PLATFORM_ANDROID || PLATFORM_ARCH_64 || PLATFORM_STANDALONE_WIN
+        public static void Reset_PlayerPrefs()
         {
-            PlayerPrefs.SetString("data", JsonUtility.ToJson(new SavaData()));
+            PlayerPrefs.SetString("data", JsonUtility.ToJson(new SaveData()));
             PlayerPrefs.Save();
         }
 #endif
