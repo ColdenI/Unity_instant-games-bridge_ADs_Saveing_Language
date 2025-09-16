@@ -95,16 +95,26 @@ ADs.Instance.ShowRewardedAd(() => {
 ```
 
 ### 💾 Сохранить данные
-```csharp
-SaveLogic.Save("level", 5);
-SaveLogic.Save("sound_on", true);
-```
+  ```csharp
+  SaveLogic.Save(new SaveData() {Coin = 10, Level = 3});
+  ```
+  ```csharp
+  SaveLogic.SaveData.Coin = 10;
+  SaveLogic.SaveData.Level = 3;
+  SaveLogic.Save(SaveLogic.SaveData);
+  ```
 
 ### 🔁 Загрузить данные
-```csharp
-int level = SaveLogic.Load<int>("level", 1); // значение по умолчанию — 1
-bool soundOn = SaveLogic.Load<bool>("sound_on", true);
-```
+  ```csharp
+  SaveLogic.OnLoad += SaveLogic_OnLoad;
+  SaveLogic.Load();
+
+  private void SaveLogic_OnLoad(SaveData savaData)
+    {
+        GameData.Level = saveData.Level;
+        GameData.coin = saveData.Coin;
+    }
+  ```
 
 ### 🌐 Изменить язык
 ```csharp
