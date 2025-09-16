@@ -39,8 +39,22 @@
   - **Мобильные/Десктоп** → `PlayerPrefs` или `JSON-файлы`
 - Простой API:
   ```csharp
-  SaveLogic.Save("coins", 100);
-  int coins = SaveLogic.Load<int>("coins");
+  SaveLogic.Save(new SaveData() {Coin = 10, Level = 3});
+  ```
+  ```csharp
+  SaveLogic.SaveData.Coin = 10;
+  SaveLogic.SaveData.Level = 3;
+  SaveLogic.Save(SaveLogic.SaveData);
+  ```
+  ```csharp
+  SaveLogic.OnLoad += SaveLogic_OnLoad;
+  SaveLogic.Load();
+
+  private void SaveLogic_OnLoad(SaveData savaData)
+    {
+        GameData.Level = saveData.Level;
+        GameData.coin = saveData.Coin;
+    }
   ```
 - Поддержка сложных объектов через сериализацию
 
