@@ -9,7 +9,7 @@ namespace CGL
         /// <summary>
         /// Init function, to call in Start or in Awake
         /// </summary>
-        public static void Init()
+        private static void init()
         {
             new TranslationData_("t_record", "Рекорд", "High Score");
             new TranslationData_("t_score", "Счет", "Score");
@@ -23,10 +23,26 @@ namespace CGL
         }
 
         #region Logic
+        public static void Init() => Init(Language.Auto);
         public static void Init(Language _language)
         {
+            if(_language == Language.Auto)
+            {
+                switch (UnityEngine.Application.systemLanguage)
+                {
+                    case UnityEngine.SystemLanguage.Russian: _language = Language.Ru; break;
+                    case UnityEngine.SystemLanguage.English: _language = Language.En; break;
+                    case UnityEngine.SystemLanguage.Spanish: _language = Language.Es; break;
+                    case UnityEngine.SystemLanguage.French: _language = Language.Fr; break;
+                    case UnityEngine.SystemLanguage.Turkish: _language = Language.Tr; break;
+
+                    default: _language = Language.En; break;
+                }
+
+            }
+
             TranslationData._language = _language;
-            Init();
+            init();
         }
 
         private static bool isInit = false;
@@ -67,6 +83,7 @@ namespace CGL
                 case Language.Es: return CheckData(data[_index].Es, data[_index].Key);
                 case Language.Fr: return CheckData(data[_index].Fr, data[_index].Key);
                 case Language.Tr: return CheckData(data[_index].Tr, data[_index].Key);
+
                 default: return "{no language}";
             }
         }
@@ -88,6 +105,7 @@ namespace CGL
         [Serializable]
         public enum Language
         {
+            Auto,
             Ru,
             En,
             Es,
@@ -134,4 +152,5 @@ namespace CGL
         public string Fr;
         public string Tr;
     }
+
 }
